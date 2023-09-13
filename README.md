@@ -1,13 +1,10 @@
-
 # mini-vue
 
 [CN](README.md)
 
+## 一、What
+
 实现最简 vue3 模型，用于深入学习 vue3， 让你更轻松的理解 vue3 的核心逻辑
-
-## 一、Usage
-
-[B 站](https://www.bilibili.com/video/BV1Zy4y1J73E) 提供了视频讲解使用方式
 
 ## 二、Why
 
