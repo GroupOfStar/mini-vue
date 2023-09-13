@@ -1,79 +1,80 @@
 import { extend } from "@mini-vue/shared";
 
-class ReactiveEffect {
-  private _fn: any;
-  public deps: Array<Set<any>> = [];
-  public active = true;
-  public onStop?: () => void;
-  constructor(fn, public scheduler?) {
-    this._fn = fn;
-  }
-  run() {
-    activeEffect = this;
-    return this._fn();
-  }
-  stop() {
-    if (this.active) {
-      cleanupEffect(this);
-      if (this.onStop) {
-        this.onStop();
-      }
-      this.active = false;
-    }
-  }
+interface ReactiveEffect {
+  active?: boolean;
+  deps: Dep[];
+  run: Function;
+  scheduler?: () => void;
+  stop?: (runner: ReactiveEffect) => void;
+  onStop?: () => void;
 }
 
-function cleanupEffect(effect) {
-  if (effect.deps.length) {
-    for (let i = 0; i < effect.deps.length; i++) {
-      effect.deps[i].delete(effect);
-    }
-    effect.deps.length = 0;
-  }
-}
+type Dep = Set<ReactiveEffect>;
 
-const targetMap = new Map();
-export const track = (target, key) => {
-  let depsMap = targetMap.get(target);
+type KeyToDepMap = Map<any, Dep>;
+
+/** 收集的依赖 */
+const reactiveMap = new WeakMap<object, KeyToDepMap>();
+
+/** 依赖收集 */
+export const track = (target, key: any) => {
+  let depsMap = reactiveMap.get(target);
   if (!depsMap) {
     depsMap = new Map();
-    targetMap.set(target, depsMap);
+    reactiveMap.set(target, depsMap);
   }
-  let dep: Set<any> = depsMap.get(key);
+  let dep = depsMap.get(key);
   if (!dep) {
     dep = new Set();
     depsMap.set(key, dep);
   }
-  if (activeEffect) {
+  if (activeEffect && !dep.has(activeEffect)) {
     dep.add(activeEffect);
     activeEffect.deps.push(dep);
   }
 };
 
+/** 触发依赖 */
 export const trigger = (target, key) => {
-  const depsMap = targetMap.get(target);
-  const dep = depsMap.get(key);
-
-  for (const effect of dep) {
-    if (effect.scheduler) {
-      effect.scheduler();
-    } else {
-      effect.run();
+  const depsMap = reactiveMap.get(target);
+  const dep = depsMap?.get(key);
+  if (dep) {
+    for (const effect of dep) {
+      if (effect.scheduler) {
+        effect.scheduler();
+      } else {
+        effect.run();
+      }
     }
   }
 };
 
-let activeEffect;
-export const effect = (fn, options: any = {}) => {
-  const { scheduler } = options;
-  const _effect = new ReactiveEffect(fn, scheduler);
-  extend(_effect, options);
-  _effect.run();
-  const runner: any = _effect.run.bind(_effect);
-  runner.effect = _effect;
-  return runner;
+/** effect */
+let activeEffect: ReactiveEffect;
+
+/** 副作用收集 */
+const effectMap = new WeakMap<Function, ReactiveEffect>();
+
+export const effect = (fn: Function, options: any = {}) => {
+  activeEffect = { run: fn, deps: [] };
+  extend(activeEffect, options);
+  effectMap.set(fn, activeEffect);
+  fn();
+  return fn;
 };
 
-export const stop = runner => {
-  runner.effect.stop();
+export const stop = (runner: Function) => {
+  const effect = effectMap.get(runner);
+  if (effect) {
+    if (effect.deps.length) {
+      for (let i = 0; i < effect.deps.length; i++) {
+        effect.deps[i].delete(effect);
+      }
+      effect.deps.length = 0;
+    }
+    if (effect.onStop) {
+      effect.onStop();
+    }
+    effect.active = false;
+  }
 };

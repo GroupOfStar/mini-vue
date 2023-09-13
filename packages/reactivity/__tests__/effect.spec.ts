@@ -59,6 +59,7 @@ describe("effect", () => {
     obj.prop = 2;
     expect(dummy).toBe(2);
     stop(runner);
+    // obj.prop++;
     obj.prop = 3
     expect(dummy).toBe(2);
 
@@ -70,7 +71,7 @@ describe("effect", () => {
   it("events: onStop", () => {
     const onStop = vi.fn();
     const runner = effect(() => {}, {
-      onStop,
+      onStop
     });
     expect(onStop).not.toHaveBeenCalled();
     stop(runner);
