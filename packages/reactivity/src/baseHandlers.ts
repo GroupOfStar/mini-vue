@@ -8,6 +8,8 @@ const createGetter = (isReadonly = false, shallow = false) => {
       return !isReadonly;
     } else if (key === ReactiveFlags.IS_READONLY) {
       return isReadonly;
+    } else if (key === ReactiveFlags.IS_SHALLOW_READONLY) {
+      return shallow;
     }
     // 在触发 get 的时候进行依赖收集
     const res = Reflect.get(target, key, receiver);
