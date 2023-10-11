@@ -1,19 +1,9 @@
-import { track, trigger } from "./effect";
+import { mutableHandlers, readonlyHandlers } from "./mutableHandlers";
 
 export const reactive = (raw: any) => {
-  return new Proxy(raw, {
-    get(target, key) {
-      const res = Reflect.get(target, key);
-      // TODO 依赖收集
-      track(target, key)
-      return res;
-    },
-    set(target, key, value) {
-      const res = Reflect.set(target, key, value);
+  return new Proxy(raw, mutableHandlers);
+};
 
-      // TODO 触发依赖
-      trigger(target, key)
-      return res;
-    }
-  });
+export const readonly = (raw: any) => {
+  return new Proxy(raw, readonlyHandlers);
 };
