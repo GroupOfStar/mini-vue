@@ -9,15 +9,6 @@ const createGetter = (isReadonly = false) => {
       return isReadonly;
     }
     // 在触发 get 的时候进行依赖收集
-    // target[key]
-    // receiver.get(key)
-    // receiver.get(key) === target[key]
-    // receiver === reactiveMap.get(target)
-    // receiver === readonlyMap.get(target)
-    // receiver === shallowReadonlyMap.get(target)
-    // receiver === reactiveMap.get(target) || receiver === readonlyMap.get(target) || receiver === shallowReadonlyMap.get(target)
-    // receiver === reactiveMap.get(target) && receiver === readonlyMap.get(target) && receiver === shallowReadonlyMap.get(target)
-    // receiver === reactiveMap.get(target) && receiver === readonlyMap.get(target) && receiver === shallowReadonlyMap.get(target) && receiver === reactiveMap.get(
     const res = Reflect.get(target, key, receiver);
     if (!isReadonly) {
       track(target, key);

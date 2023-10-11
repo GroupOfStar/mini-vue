@@ -1,5 +1,8 @@
 import { extend } from "@mini-vue/shared";
 
+let activeEffect;
+let shouldTrack;
+
 class ReactiveEffect {
   private _fn: any;
   public deps: Array<Set<any>> = [];
@@ -9,8 +12,14 @@ class ReactiveEffect {
     this._fn = fn;
   }
   run() {
+    if (!this.active) {
+      return this._fn();
+    }
+    shouldTrack = true;
     activeEffect = this;
-    return this._fn();
+    const result = this._fn();
+    shouldTrack = false;
+    return result;
   }
   stop() {
     if (this.active) {
@@ -32,21 +41,28 @@ function cleanupEffect(effect) {
   }
 }
 
+function isTracking() {
+  return shouldTrack && activeEffect !== undefined;
+}
+
 const targetMap = new Map();
 export const track = (target, key) => {
-  let depsMap = targetMap.get(target);
-  if (!depsMap) {
-    depsMap = new Map();
-    targetMap.set(target, depsMap);
-  }
-  let dep: Set<any> = depsMap.get(key);
-  if (!dep) {
-    dep = new Set();
-    depsMap.set(key, dep);
-  }
-  if (activeEffect) {
-    dep.add(activeEffect);
-    activeEffect.deps.push(dep);
+  if (isTracking()) {
+    let depsMap = targetMap.get(target);
+    if (!depsMap) {
+      depsMap = new Map();
+      targetMap.set(target, depsMap);
+    }
+    let dep: Set<any> = depsMap.get(key);
+    if (!dep) {
+      dep = new Set();
+      depsMap.set(key, dep);
+    }
+    // 不在dep中
+    if (!dep.has(activeEffect)) {
+      dep.add(activeEffect);
+      activeEffect.deps.push(dep);
+    }
   }
 };
 
@@ -63,7 +79,6 @@ export const trigger = (target, key) => {
   }
 };
 
-let activeEffect;
 export const effect = (fn, options: any = {}) => {
   const { scheduler } = options;
   const _effect = new ReactiveEffect(fn, scheduler);
