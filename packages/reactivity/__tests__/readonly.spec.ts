@@ -1,4 +1,4 @@
-import { readonly } from "../src/reactive";
+import { isReadonly, readonly } from "../src/reactive";
 
 describe("readonly", () => {
   it("should make nested values readonly", () => {
@@ -18,5 +18,12 @@ describe("readonly", () => {
 
     user.age = 11;
     expect(console.warn).toBeCalled();
+  });
+
+  it("isReadonly", () => {
+    const original = { foo: 1, bar: { baz: 2 } };
+    const wrapped = readonly(original);
+    expect(isReadonly(wrapped)).toBe(true);
+    expect(isReadonly(original)).toBe(false);
   });
 });
