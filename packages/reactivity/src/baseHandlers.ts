@@ -3,6 +3,9 @@
 //     const isExistInReactiveMap = () =>
 //       key === ReactiveFlags.RAW && receiver === reactiveMap.get(target);
 
+import { c } from "vitest/dist/reporters-5f784f42";
+import { track, trigger } from "./effect";
+
 //     const isExistInReadonlyMap = () =>
 //       key === ReactiveFlags.RAW && receiver === readonlyMap.get(target);
 
@@ -46,3 +49,38 @@
 //     return res;
 //   }
 // };
+
+const createGetter = (isReadonly = false) => {
+  return function get(target, key, receiver) {
+    const res = Reflect.get(target, key, receiver);
+    if (!isReadonly) {
+      track(target, key);
+    }
+    return res;
+  };
+};
+
+const createSetter = () => {
+  return function set(target, key, value, receiver) {
+    const res = Reflect.set(target, key, value, receiver);
+    trigger(target, key);
+    return res;
+  };
+};
+
+const get = createGetter();
+const set = createSetter();
+const readonlyGet = createGetter(true);
+
+export const mutableHandlers = {
+  get,
+  set
+};
+
+export const readonlyHandlers = {
+  get: readonlyGet,
+  set(target, key, value, receiver) {
+    console.warn(`key:${key} set failed, target is readonly`);
+    return true;
+  }
+};
