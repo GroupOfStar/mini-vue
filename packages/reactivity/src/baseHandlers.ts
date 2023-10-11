@@ -2,7 +2,7 @@ import { isObject } from "@mini-vue/shared";
 import { track, trigger } from "./effect";
 import { ReactiveFlags, reactive, readonly } from "./reactive";
 
-const createGetter = (isReadonly = false) => {
+const createGetter = (isReadonly = false, shallow = false) => {
   return function get(target, key, receiver) {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly;
@@ -11,6 +11,9 @@ const createGetter = (isReadonly = false) => {
     }
     // 在触发 get 的时候进行依赖收集
     const res = Reflect.get(target, key, receiver);
+    if (shallow) {
+      return res;
+    }
     if (isObject(res)) {
       return isReadonly ? readonly(res) : reactive(res);
     }
@@ -32,6 +35,7 @@ const createSetter = () => {
 const get = createGetter();
 const set = createSetter();
 const readonlyGet = createGetter(true);
+const shallowReadonlyGet = createGetter(true, true);
 
 export const mutableHandlers = {
   get,
@@ -46,4 +50,9 @@ export const readonlyHandlers = {
     );
     return true;
   }
+};
+
+export const shallowReadonlyHandlers = {
+  ...readonlyHandlers,
+  get: shallowReadonlyGet
 };
