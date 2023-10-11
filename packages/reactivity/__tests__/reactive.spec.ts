@@ -1,4 +1,4 @@
-import { isReactive } from "../src/reactive";
+import { isReactive, isProxy } from "../src/reactive";
 import { reactive } from "./../src";
 
 describe("reactive", () => {
@@ -10,9 +10,9 @@ describe("reactive", () => {
     // expect(isReactive(original)).toBe(false);
     // get
     expect(observed.foo).toBe(1);
-    //     // has
+    // has
     expect("foo" in observed).toBe(true);
-    //     // ownKeys
+    // ownKeys
     expect(Object.keys(observed)).toEqual(["foo"]);
   });
 
@@ -35,4 +35,10 @@ describe("reactive", () => {
     expect(isReactive(observed.array)).toBe(true);
     expect(isReactive(observed.array[0])).toBe(true);
   });
+
+  it("isProxy", () => {
+    const original = { foo: 1 };
+    const observed = reactive(original);
+    expect(isProxy(observed)).toBe(true);
+  })
 });

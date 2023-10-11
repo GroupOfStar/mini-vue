@@ -10,6 +10,9 @@ const createGetter = (isReadonly = false, shallow = false) => {
     if (key === ReactiveFlags.IS_READONLY) {
       return isReadonly;
     }
+    if(key === ReactiveFlags.IS_SHALLOW){
+      return shallow;
+    }
 
     // 收集依赖，返回值
     // 这里返回的是一个函数，调用这个函数就是触发依赖的函数
