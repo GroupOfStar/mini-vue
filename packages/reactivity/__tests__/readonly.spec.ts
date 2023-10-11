@@ -17,10 +17,16 @@ describe("readonly", () => {
     expect(console.warn).toBeCalled();
   });
 
-  it(".isReadonly", () => {
+  it("isReadonly", () => {
     const original = { foo: 1, bar: 2 };
     const wrapped = readonly(original);
     expect(isReadonly(wrapped)).toBe(true);
     expect(isReadonly(original)).toBe(false);
+  });
+
+  it("nested readonly", () => {
+    const original = { foo: 1, bar: { baz: 2 } };
+    const wrapped = readonly(original);
+    expect(isReadonly(wrapped.bar)).toBe(true);
   });
 });
