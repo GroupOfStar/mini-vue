@@ -16,21 +16,31 @@ type KeyToDepMap = Map<any, Dep>;
 /** 收集的依赖 */
 const reactiveMap = new WeakMap<object, KeyToDepMap>();
 
+/** effect */
+let activeEffect: ReactiveEffect;
+let shouldTrack = true;
+
+function isTracking() {
+  return activeEffect && shouldTrack;
+}
+
 /** 依赖收集 */
 export const track = (target, key: any) => {
-  let depsMap = reactiveMap.get(target);
-  if (!depsMap) {
-    depsMap = new Map();
-    reactiveMap.set(target, depsMap);
-  }
-  let dep = depsMap.get(key);
-  if (!dep) {
-    dep = new Set();
-    depsMap.set(key, dep);
-  }
-  if (activeEffect && !dep.has(activeEffect)) {
-    dep.add(activeEffect);
-    activeEffect.deps.push(dep);
+  if (isTracking()) {
+    let depsMap = reactiveMap.get(target);
+    if (!depsMap) {
+      depsMap = new Map();
+      reactiveMap.set(target, depsMap);
+    }
+    let dep = depsMap.get(key);
+    if (!dep) {
+      dep = new Set();
+      depsMap.set(key, dep);
+    }
+    if (!dep.has(activeEffect)) {
+      dep.add(activeEffect);
+      activeEffect.deps.push(dep);
+    }
   }
 };
 
@@ -48,9 +58,6 @@ export const trigger = (target, key) => {
     }
   }
 };
-
-/** effect */
-let activeEffect: ReactiveEffect;
 
 /** 副作用收集 */
 const effectMap = new WeakMap<Function, ReactiveEffect>();
@@ -76,5 +83,6 @@ export const stop = (runner: Function) => {
       effect.onStop();
     }
     effect.active = false;
+    shouldTrack = false;
   }
 };
