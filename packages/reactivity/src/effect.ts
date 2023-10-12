@@ -41,11 +41,11 @@ function cleanupEffect(effect) {
   }
 }
 
-function isTracking() {
+export function isTracking() {
   return shouldTrack && activeEffect !== undefined;
 }
 
-const targetMap = new Map();
+const targetMap = new WeakMap();
 export const track = (target, key) => {
   if (isTracking()) {
     let depsMap = targetMap.get(target);
@@ -58,18 +58,25 @@ export const track = (target, key) => {
       dep = new Set();
       depsMap.set(key, dep);
     }
-    // 不在dep中
-    if (!dep.has(activeEffect)) {
-      dep.add(activeEffect);
-      activeEffect.deps.push(dep);
-    }
+    trackEffects(dep);
   }
 };
+
+export function trackEffects(dep: Set<any>) {
+  // 不在dep中
+  if (!dep.has(activeEffect)) {
+    dep.add(activeEffect);
+    activeEffect.deps.push(dep);
+  }
+}
 
 export const trigger = (target, key) => {
   const depsMap = targetMap.get(target);
   const dep = depsMap.get(key);
+  triggerEffects(dep);
+};
 
+export function triggerEffects(dep: any) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
@@ -77,7 +84,7 @@ export const trigger = (target, key) => {
       effect.run();
     }
   }
-};
+}
 
 export const effect = (fn, options: any = {}) => {
   const { scheduler } = options;
