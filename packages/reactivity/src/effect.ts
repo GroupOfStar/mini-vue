@@ -9,7 +9,7 @@ interface ReactiveEffect {
   onStop?: () => void;
 }
 
-type Dep = Set<ReactiveEffect>;
+export type Dep = Set<ReactiveEffect>;
 
 type KeyToDepMap = Map<any, Dep>;
 
@@ -20,7 +20,7 @@ const reactiveMap = new WeakMap<object, KeyToDepMap>();
 let activeEffect: ReactiveEffect;
 let shouldTrack = true;
 
-function isTracking() {
+export function isTracking() {
   return activeEffect && shouldTrack;
 }
 
@@ -37,27 +37,35 @@ export const track = (target, key: any) => {
       dep = new Set();
       depsMap.set(key, dep);
     }
-    if (!dep.has(activeEffect)) {
-      dep.add(activeEffect);
-      activeEffect.deps.push(dep);
-    }
+    trackEffects(dep);
   }
 };
+
+export function trackEffects(dep: Dep) {
+  if (!dep.has(activeEffect)) {
+    dep.add(activeEffect);
+    activeEffect.deps.push(dep);
+  }
+}
 
 /** 触发依赖 */
 export const trigger = (target, key) => {
   const depsMap = reactiveMap.get(target);
   const dep = depsMap?.get(key);
   if (dep) {
-    for (const effect of dep) {
-      if (effect.scheduler) {
-        effect.scheduler();
-      } else {
-        effect.run();
-      }
-    }
+    triggerEffects(dep);
   }
 };
+
+export function triggerEffects(dep: Dep) {
+  for (const effect of dep) {
+    if (effect.scheduler) {
+      effect.scheduler();
+    } else {
+      effect.run();
+    }
+  }
+}
 
 /** 副作用收集 */
 const effectMap = new WeakMap<Function, ReactiveEffect>();
