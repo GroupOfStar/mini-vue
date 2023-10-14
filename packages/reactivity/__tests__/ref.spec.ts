@@ -1,4 +1,5 @@
-import { effect, ref } from "./../src";
+import { isRef, unRef } from "../src/ref";
+import { effect, reactive, ref } from "./../src";
 
 describe("ref", () => {
   it("should return a ref", () => {
@@ -42,5 +43,18 @@ describe("ref", () => {
     // same value should not trigger
     a.value.count = 2;
     expect(dummy).toBe(2);
+  });
+
+  it("isRef", () => {
+    const a = ref(1);
+    const user = reactive({ age: 18 });
+    expect(isRef(a)).toBe(true);
+    expect(isRef(user)).toBe(false);
+  });
+
+  it("unRef", () => {
+    const a = ref(1);
+    expect(unRef(a)).toBe(1);
+    expect(unRef(1)).toBe(1);
   });
 });
