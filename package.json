@@ -2,14 +2,22 @@
   "name": "mini-vue",
   "version": "1.0.0",
   "description": "learn more efficiently vue3 source code",
-  "main": "index.js",
+  "main": "lib/runtime-core.esm.js",
+  "module": "lib/runtime-core.cjs.js",
+  "type": "module",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "build": "rollup -c --configPlugin @rollup/plugin-typescript"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/node": "^20.8.6",
+    "rollup": "^3.28.1",
+    "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "vitest": "^0.34.4"
   }

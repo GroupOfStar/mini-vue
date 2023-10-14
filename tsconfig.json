@@ -1,23 +1,23 @@
 {
-    "compilerOptions": {
-      "baseUrl": ".",
-      "strict": true,
-      "rootDir": ".",
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "target": "es2016",
-      "module": "esnext",
-      "noImplicitAny": false,
-      "removeComments": true,
-      "preserveConstEnums": true,
-      "sourceMap": true,
-      "downlevelIteration": true,
-      "lib": ["esnext", "DOM"],
-      "types": ["vitest/globals"],
-      "paths": {
-        "@mini-vue/*": ["packages/*/src"]
-      }
-    },
-    "include": ["packages/*/src", "packages/*/__tests__"]
-  }
-  
+  "compilerOptions": {
+    "baseUrl": ".",
+    "strict": true,
+    "rootDir": ".",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": false,
+    "downlevelIteration": true,
+    "lib": ["ESNext", "DOM"],
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@mini-vue/*": ["packages/*/src"]
+    }
+  },
+  "include": ["packages/*/src", "packages/*/__tests__"],
+  "exclude": ["rollup.config.ts"]
+}
