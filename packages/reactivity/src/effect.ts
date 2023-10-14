@@ -3,13 +3,16 @@ import { extend } from "@mini-vue/shared";
 let activeEffect;
 let shouldTrack;
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any;
   public deps: Array<Set<any>> = [];
   public active = true;
   public onStop?: () => void;
-  constructor(fn, public scheduler?) {
+  public scheduler: Function | undefined;
+
+  constructor(fn: any, scheduler?: Function) {
     this._fn = fn;
+    this.scheduler = scheduler;
   }
   run() {
     if (!this.active) {
