@@ -1,15 +1,16 @@
-import { createVNode } from "./vNode";
+import { VNode, createVNode } from "./vNode";
 import { render } from "./renderer";
 
-// export interface Component {
-//   render: () => Element;
-//   setup: () => any;
-// }
+export interface ComponentOptions {
+  render: () => VNode;
+  setup: () => Object;
+}
 
-export function createApp(rootComponent: any) {
+export type Component = ComponentOptions | string;
+
+export function createApp(rootComponent: ComponentOptions) {
   return {
-    mount(rootContainer: any) {
-      console.log("mount", rootComponent);
+    mount(rootContainer: Element) {
       const vNode = createVNode(rootComponent, undefined, undefined);
 
       render(vNode, rootContainer);
