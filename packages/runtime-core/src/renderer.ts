@@ -34,7 +34,12 @@ function processElement(vNode: VNode, container: Element) {
     }
   }
   for (const [key, value] of Object.entries(props)) {
-    el.setAttribute(key, value);
+    const isOn = (key: string) => /^on[A-Z]/.test(key);
+    if (isOn(key)) {
+      el.addEventListener(key.slice(2).toLowerCase(), value as EventListener);
+    } else {
+      el.setAttribute(key, value as string);
+    }
   }
   container.appendChild(el);
 }

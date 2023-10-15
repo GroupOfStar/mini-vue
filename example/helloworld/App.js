@@ -6,7 +6,13 @@ export const App = {
         window.self = this
         return h('div', {
             id: "root",
-            class: ['red', 'hard']
+            class: ['red', 'hard'],
+            onClick() {
+                console.log("onClick")
+            },
+            onMousedown(e) {
+                console.log('onMousedown e :>> ', e);
+            }
         },
             // setup state
             "hi " + this.msg,

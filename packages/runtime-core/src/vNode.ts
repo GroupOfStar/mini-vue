@@ -1,11 +1,12 @@
 import { ShapeFlags } from "@mini-vue/shared";
 import { ComponentOptions } from "./createApp";
+import { Data } from "./component";
 
 export type VNodeTypes = ComponentOptions | string;
 
 export interface VNode {
   type: VNodeTypes;
-  props: Object;
+  props: Data;
   children: VNode[] | string;
   shapeFlags: ShapeFlags;
   el?: HTMLElement;
