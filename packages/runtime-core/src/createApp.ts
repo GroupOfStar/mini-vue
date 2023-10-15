@@ -1,9 +1,10 @@
 import { VNode, createVNode } from "./vNode";
 import { render } from "./renderer";
+import { Data } from "./component";
 
 export interface ComponentOptions {
   render: () => VNode;
-  setup: () => Object;
+  setup?: () => Data;
 }
 
 export type Component = ComponentOptions | string;

@@ -7,15 +7,16 @@ export const App = {
             class: ['red', 'hard']
         },
             // setup state
-            // "hi " + this.msg,
+            "hi " + this.msg,
             // string children
             // "hi mini-vue"
             // Array children
-            [h('p', { class: 'red' }, 'hi'), h('p', { class: 'blue' }, 'mini-vue')])
+            // [h('p', { class: 'red' }, 'hi'), h('p', { class: 'blue' }, 'mini-vue')]
+        )
     },
     setup() {
         return {
-            msg: "mini-vue"
+            msg: "mini-vue11"
         }
     }
 }

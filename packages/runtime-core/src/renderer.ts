@@ -1,6 +1,11 @@
 import { isObject } from "@mini-vue/shared";
 import { VNode } from "./vNode";
 import { ComponentOptions } from "./createApp";
+import {
+  ComponentInternalInstance,
+  createComponentInstance,
+  setupComponent
+} from "./component";
 
 export const render = (vNode: VNode, container: Element) => {
   patch(vNode, container);
@@ -16,6 +21,7 @@ function patch(vNode: VNode, container: Element) {
   }
 }
 
+// 操作element节点
 function processElement(vNode: VNode, container: Element) {
   const { type, props, children } = vNode;
   const el = document.createElement(type as string);
@@ -32,27 +38,26 @@ function processElement(vNode: VNode, container: Element) {
   container.appendChild(el);
 }
 
+// 操作component组件
 function processComponent(vNode: VNode, container: Element) {
   // init
   mountComponent(vNode, container);
   // update
 }
 
+// mount component
 function mountComponent(vNode: VNode, container: Element) {
-  setupComponent(vNode);
-  setupRenderEffect(vNode, container);
+  const instance = createComponentInstance(vNode);
+  setupComponent(instance);
+  setupRenderEffect(instance, container);
 }
 
-function setupComponent(vNode: VNode) {
-  const { setup } = vNode.type as ComponentOptions;
-  if (setup) {
-    const setupResult = setup();
-    // if (typeof setupResult !== "function") {
-    //   setupResult();
-    // }
-  }
-}
-function setupRenderEffect(vNode: VNode, container: Element) {
-  const subTree = (vNode.type as ComponentOptions).render();
+// setup render effect
+function setupRenderEffect(
+  instance: ComponentInternalInstance,
+  container: Element
+) {
+  const { type, proxy } = instance;
+  const subTree = (type as ComponentOptions).render.call(proxy);
   patch(subTree, container);
 }
