@@ -1,7 +1,9 @@
 import { h } from './../../lib/runtime-core.esm.js'
 
+window.self = null
 export const App = {
     render() {
+        window.self = this
         return h('div', {
             id: "root",
             class: ['red', 'hard']

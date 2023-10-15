@@ -1,3 +1,4 @@
+import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { Component, ComponentOptions } from "./createApp";
 import { VNode } from "./vNode";
 
@@ -37,22 +38,7 @@ function setupStatefulComponent(instance: ComponentInternalInstance) {
   const component = instance.type as ComponentOptions;
 
   // ctx
-  instance.proxy = new Proxy(instance, {
-    get(target, key: string) {
-      const { setupState } = target;
-      if (setupState && setupState[key]) {
-        return setupState[key];
-      }
-      return;
-    }
-    // set(target, key, value) {
-    //   const { data } = target;
-    //   if (data && data[key]) {
-    //     data[key] = value;
-    //   }
-    //   return true;
-    // }
-  });
+  instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
 
   const { setup } = component;
   if (setup) {

@@ -14,6 +14,7 @@ export const render = (vNode: VNode, container: Element) => {
 /** 补丁 */
 function patch(vNode: VNode, container: Element) {
   const { type } = vNode;
+  console.log("type :>> ", type);
   if (typeof type === "string") {
     processElement(vNode, container);
   } else if (isObject(type)) {
@@ -24,7 +25,7 @@ function patch(vNode: VNode, container: Element) {
 // 操作element节点
 function processElement(vNode: VNode, container: Element) {
   const { type, props, children } = vNode;
-  const el = document.createElement(type as string);
+  const el = (vNode.el = document.createElement(type as string));
   if (typeof children === "string") {
     el.textContent = children;
   } else if (Array.isArray(children)) {
@@ -46,18 +47,21 @@ function processComponent(vNode: VNode, container: Element) {
 }
 
 // mount component
-function mountComponent(vNode: VNode, container: Element) {
-  const instance = createComponentInstance(vNode);
+function mountComponent(initialVNode: VNode, container: Element) {
+  const instance = createComponentInstance(initialVNode);
   setupComponent(instance);
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, initialVNode, container);
 }
 
 // setup render effect
 function setupRenderEffect(
   instance: ComponentInternalInstance,
+  initialVNode: VNode,
   container: Element
 ) {
   const { type, proxy } = instance;
   const subTree = (type as ComponentOptions).render.call(proxy);
+  console.log("subTree :>> ", subTree);
   patch(subTree, container);
+  initialVNode.el = subTree.el;
 }
