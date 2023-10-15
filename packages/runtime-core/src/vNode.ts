@@ -1,20 +1,39 @@
-import { ComponentOptions, Component } from "./createApp";
+import { ShapeFlags } from "@mini-vue/shared";
+import { ComponentOptions } from "./createApp";
+
+export type VNodeTypes = ComponentOptions | string;
 
 export interface VNode {
-  type: Component;
+  type: VNodeTypes;
   props: Object;
   children: VNode[] | string;
+  shapeFlags: ShapeFlags;
   el?: HTMLElement;
   key?: string;
 }
 
-type CreateVNode = (
-  options: ComponentOptions,
-  props: any,
-  children: any
-) => VNode;
+type CreateVNode = (type: VNodeTypes, props: any, children: any) => VNode;
 
-export const createVNode: CreateVNode = (options, props, children) => {
-  const vNode = { type: options, props, children };
+function getShapeFlags(type: VNodeTypes) {
+  return typeof type === "string"
+    ? ShapeFlags.ELEMENT
+    : ShapeFlags.STATEFUL_COMPONENT;
+}
+
+export const createVNode: CreateVNode = (type, props, children) => {
+  const vNode = {
+    type,
+    shapeFlags: getShapeFlags(type),
+    props,
+    children
+  };
+
+  // children
+  if (typeof children === "string") {
+    vNode.shapeFlags = vNode.shapeFlags | ShapeFlags.TEXT_CHILDREN;
+  } else if (Array.isArray(children)) {
+    vNode.shapeFlags = vNode.shapeFlags | ShapeFlags.ARRAY_CHILDREN;
+  }
+
   return vNode;
 };

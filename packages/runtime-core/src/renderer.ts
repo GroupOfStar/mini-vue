@@ -1,4 +1,4 @@
-import { isObject } from "@mini-vue/shared";
+import { ShapeFlags } from "@mini-vue/shared";
 import { VNode } from "./vNode";
 import { ComponentOptions } from "./createApp";
 import {
@@ -13,23 +13,23 @@ export const render = (vNode: VNode, container: Element) => {
 
 /** 补丁 */
 function patch(vNode: VNode, container: Element) {
-  const { type } = vNode;
+  const { type, shapeFlags } = vNode;
   console.log("type :>> ", type);
-  if (typeof type === "string") {
+  if (shapeFlags & ShapeFlags.ELEMENT) {
     processElement(vNode, container);
-  } else if (isObject(type)) {
+  } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vNode, container);
   }
 }
 
 // 操作element节点
 function processElement(vNode: VNode, container: Element) {
-  const { type, props, children } = vNode;
+  const { type, props, children, shapeFlags } = vNode;
   const el = (vNode.el = document.createElement(type as string));
-  if (typeof children === "string") {
-    el.textContent = children;
-  } else if (Array.isArray(children)) {
-    for (const child of children) {
+  if (shapeFlags & ShapeFlags.TEXT_CHILDREN) {
+    el.textContent = children as string;
+  } else if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
+    for (const child of children as VNode[]) {
       patch(child, el);
     }
   }

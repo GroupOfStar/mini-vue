@@ -7,8 +7,6 @@ export interface ComponentOptions {
   setup?: () => Data;
 }
 
-export type Component = ComponentOptions | string;
-
 export function createApp(rootComponent: ComponentOptions) {
   return {
     mount(rootContainer: Element) {

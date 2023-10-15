@@ -1,12 +1,12 @@
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
-import { Component, ComponentOptions } from "./createApp";
-import { VNode } from "./vNode";
+import { ComponentOptions } from "./createApp";
+import { VNode, VNodeTypes } from "./vNode";
 
 export type Data = Record<string, unknown>;
 
 export interface ComponentInternalInstance {
   vNode: VNode;
-  type: Component;
+  type: VNodeTypes;
   proxy: any;
   setupState: Data;
 }

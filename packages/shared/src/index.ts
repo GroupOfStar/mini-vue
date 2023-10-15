@@ -7,3 +7,5 @@ export const extend = Object.assign;
 export const hasChanged = (newValue: any, oldValue: any) => {
   return !Object.is(newValue, oldValue);
 };
+
+export { ShapeFlags } from "./ShapeFlags";
