@@ -21,7 +21,7 @@ function getShapeFlags(type: VNodeTypes) {
     : ShapeFlags.STATEFUL_COMPONENT;
 }
 
-export const createVNode: CreateVNode = (type, props, children) => {
+export const createVNode: CreateVNode = (type, props = {}, children) => {
   const vNode = {
     type,
     shapeFlags: getShapeFlags(type),

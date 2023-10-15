@@ -36,7 +36,11 @@ importers:
         specifier: ^1.0.0
         version: link:../shared
 
-  packages/runtime-core: {}
+  packages/runtime-core:
+    devDependencies:
+      '@mini-vue/shared':
+        specifier: ^1.0.0
+        version: link:../shared
 
   packages/shared: {}
 

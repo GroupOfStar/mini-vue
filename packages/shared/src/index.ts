@@ -8,4 +8,8 @@ export const hasChanged = (newValue: any, oldValue: any) => {
   return !Object.is(newValue, oldValue);
 };
 
+export const hasOwn = (target: any, key: string) => {
+  return Object.prototype.hasOwnProperty.call(target, key);
+};
+
 export { ShapeFlags } from "./ShapeFlags";

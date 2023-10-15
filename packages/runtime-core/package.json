@@ -8,7 +8,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@mini-vue/shared": "^1.0.0"
+  "dependencies": {
+    "@mini-vue/shared": "^1.0.0",
+    "@mini-vue/reactivity": "^1.0.0"
   }
 }

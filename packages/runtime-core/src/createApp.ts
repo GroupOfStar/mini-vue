@@ -4,7 +4,7 @@ import { Data } from "./component";
 
 export interface ComponentOptions {
   render: () => VNode;
-  setup?: () => Data;
+  setup?: (props?: Data) => Data;
 }
 
 export function createApp(rootComponent: ComponentOptions) {

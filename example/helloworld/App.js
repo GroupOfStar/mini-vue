@@ -1,7 +1,9 @@
 import { h } from './../../lib/runtime-core.esm.js'
+import { Foo } from './Foo.js'
 
 window.self = null
 export const App = {
+    name: "App",
     render() {
         window.self = this
         return h('div', {
@@ -15,11 +17,11 @@ export const App = {
             }
         },
             // setup state
-            "hi " + this.msg,
+            // "hi " + this.msg,
             // string children
             // "hi mini-vue"
             // Array children
-            // [h('p', { class: 'red' }, 'hi'), h('p', { class: 'blue' }, 'mini-vue')]
+            [h('p', { class: 'red' }, 'hi'), h(Foo, { count: 1 })]
         )
     },
     setup() {

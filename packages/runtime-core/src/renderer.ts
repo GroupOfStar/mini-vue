@@ -14,7 +14,6 @@ export const render = (vNode: VNode, container: Element) => {
 /** 补丁 */
 function patch(vNode: VNode, container: Element) {
   const { type, shapeFlags } = vNode;
-  console.log("type :>> ", type);
   if (shapeFlags & ShapeFlags.ELEMENT) {
     processElement(vNode, container);
   } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
@@ -66,7 +65,6 @@ function setupRenderEffect(
 ) {
   const { type, proxy } = instance;
   const subTree = (type as ComponentOptions).render.call(proxy);
-  console.log("subTree :>> ", subTree);
   patch(subTree, container);
   initialVNode.el = subTree.el;
 }

@@ -1,3 +1,5 @@
+import { shallowReadonly } from "@mini-vue/reactivity";
+import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { ComponentOptions } from "./createApp";
 import { VNode, VNodeTypes } from "./vNode";
@@ -7,23 +9,25 @@ export type Data = Record<string, unknown>;
 export interface ComponentInternalInstance {
   vNode: VNode;
   type: VNodeTypes;
-  proxy: any;
+  props: Data;
   setupState: Data;
+  proxy: any;
 }
 
 export function createComponentInstance(vNode: VNode) {
   const component: ComponentInternalInstance = {
     vNode,
     type: vNode.type,
-    proxy: null,
-    setupState: {}
+    props: {},
+    setupState: {},
+    proxy: null
   };
   return component;
 }
 
 export function setupComponent(instance: ComponentInternalInstance) {
   // TODO
-  // initProps
+  initProps(instance, instance.vNode.props);
   // initSlots
 
   // 设置有状态组件
@@ -42,9 +46,10 @@ function setupStatefulComponent(instance: ComponentInternalInstance) {
 
   const { setup } = component;
   if (setup) {
-    const setupResult = setup();
+    console.log("instance.props :>> ", instance.props);
+    const setupResult = setup(shallowReadonly(instance.props));
     if (typeof setupResult !== "function") {
-      instance.setupState = setupResult;
+      instance.setupState = setupResult || {};
     }
   }
 }

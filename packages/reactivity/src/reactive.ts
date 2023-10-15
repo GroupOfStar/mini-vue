@@ -1,4 +1,9 @@
-import { mutableHandlers, readonlyHandlers, shallowReadonlyHandlers } from "./baseHandlers";
+import { isObject } from "@mini-vue/shared";
+import {
+  mutableHandlers,
+  readonlyHandlers,
+  shallowReadonlyHandlers
+} from "./baseHandlers";
 
 export const enum ReactiveFlags {
   IS_REACTIVE = "__v_isReactive",
@@ -9,16 +14,15 @@ export const enum ReactiveFlags {
 }
 
 export const reactive = (raw: any) => {
-  return new Proxy(raw, mutableHandlers);
+  return createReactiveObject(raw, mutableHandlers);
 };
 
 export const readonly = (raw: any) => {
   return new Proxy(raw, readonlyHandlers);
 };
 
-
 export const shallowReadonly = (raw: any) => {
-  return new Proxy(raw, shallowReadonlyHandlers);
+  return createReactiveObject(raw, shallowReadonlyHandlers);
 };
 
 export const isReactive = (value: any) => {
@@ -31,8 +35,16 @@ export const isReadonly = (value: any) => {
 
 export const isShallowReadonly = (value: any) => {
   return !!value[ReactiveFlags.IS_SHALLOW_READONLY];
-}
+};
 
 export const isPorxy = (value: any) => {
   return isReactive(value) || isReadonly(value) || isShallowReadonly(value);
+};
+
+function createReactiveObject(target: any, baseHandlers: any) {
+  if (isObject(target)) {
+    return new Proxy(target, baseHandlers);
+  } else {
+    return target;
+  }
 }
