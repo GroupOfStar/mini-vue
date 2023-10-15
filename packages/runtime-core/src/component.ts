@@ -3,6 +3,7 @@ import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { ComponentOptions } from "./createApp";
 import { VNode, VNodeTypes } from "./vNode";
+import { emit } from "./componentEmit";
 
 export type Data = Record<string, unknown>;
 
@@ -12,6 +13,7 @@ export interface ComponentInternalInstance {
   props: Data;
   setupState: Data;
   proxy: any;
+  emit: (event: string) => void;
 }
 
 export function createComponentInstance(vNode: VNode) {
@@ -20,8 +22,12 @@ export function createComponentInstance(vNode: VNode) {
     type: vNode.type,
     props: {},
     setupState: {},
-    proxy: null
+    proxy: null,
+    emit: () => {}
   };
+
+  component.emit = emit.bind(null, component);
+
   return component;
 }
 
@@ -47,7 +53,9 @@ function setupStatefulComponent(instance: ComponentInternalInstance) {
   const { setup } = component;
   if (setup) {
     console.log("instance.props :>> ", instance.props);
-    const setupResult = setup(shallowReadonly(instance.props));
+    const setupResult = setup(shallowReadonly(instance.props), {
+      emit: instance.emit
+    });
     if (typeof setupResult !== "function") {
       instance.setupState = setupResult || {};
     }
