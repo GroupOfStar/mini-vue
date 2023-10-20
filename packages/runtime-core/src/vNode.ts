@@ -4,16 +4,32 @@ import { Data } from "./component";
 
 export type VNodeTypes = ComponentOptions | string;
 
+export type RawSlots = {
+  [name: string]: VNode | ((props?: Data) => VNode);
+};
+
+export type VNodeChild =
+  | undefined
+  | string
+  | VNode
+  | VNode[]
+  | RawSlots
+  | ((props: Data) => VNode);
+
 export interface VNode {
   type: VNodeTypes;
   props: Data;
-  children: VNode[] | string;
+  children: VNodeChild;
   shapeFlags: ShapeFlags;
   el?: HTMLElement;
   key?: string;
 }
 
-type CreateVNode = (type: VNodeTypes, props: any, children: any) => VNode;
+export type CreateVNode = (
+  type: VNodeTypes,
+  props: Data,
+  children: VNodeChild
+) => VNode;
 
 function getShapeFlags(type: VNodeTypes) {
   return typeof type === "string"
@@ -36,5 +52,10 @@ export const createVNode: CreateVNode = (type, props = {}, children) => {
     vNode.shapeFlags = vNode.shapeFlags | ShapeFlags.ARRAY_CHILDREN;
   }
 
+  if (vNode.shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
+    if (typeof children === "object") {
+      vNode.shapeFlags = vNode.shapeFlags | ShapeFlags.SLOT_CHILDREN;
+    }
+  }
   return vNode;
 };

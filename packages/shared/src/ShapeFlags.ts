@@ -6,5 +6,7 @@ export const enum ShapeFlags {
   /** 文本节点 */
   TEXT_CHILDREN = 1 << 2, // 0100
   /** 数组节点 */
-  ARRAY_CHILDREN = 1 << 3 // 1000
+  ARRAY_CHILDREN = 1 << 3, // 1000
+  /** 插槽节点 */
+  SLOT_CHILDREN = 1 << 4 // 10000
 }

@@ -1,5 +1,5 @@
-import { createVNode } from "./vNode";
+import { CreateVNode, createVNode } from "./vNode";
 
-export const h = (type, props, children) => {
+export const h: CreateVNode = (type, props, children) => {
   return createVNode(type, props, children);
 };

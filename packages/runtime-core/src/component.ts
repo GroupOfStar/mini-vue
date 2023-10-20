@@ -2,8 +2,9 @@ import { shallowReadonly } from "@mini-vue/reactivity";
 import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { ComponentOptions } from "./createApp";
-import { VNode, VNodeTypes } from "./vNode";
+import { RawSlots, VNode, VNodeChild, VNodeTypes } from "./vNode";
 import { emit } from "./componentEmit";
+import { initSlots } from "./componentSlots";
 
 export type Data = Record<string, unknown>;
 
@@ -14,6 +15,7 @@ export interface ComponentInternalInstance {
   setupState: Data;
   proxy: any;
   emit: (event: string) => void;
+  slots: { [key: string]: VNode[] | ((props: Data) => VNode[]) };
 }
 
 export function createComponentInstance(vNode: VNode) {
@@ -23,7 +25,8 @@ export function createComponentInstance(vNode: VNode) {
     props: {},
     setupState: {},
     proxy: null,
-    emit: () => {}
+    emit: () => {},
+    slots: {}
   };
 
   component.emit = emit.bind(null, component);
@@ -34,7 +37,10 @@ export function createComponentInstance(vNode: VNode) {
 export function setupComponent(instance: ComponentInternalInstance) {
   // TODO
   initProps(instance, instance.vNode.props);
-  // initSlots
+  initSlots(
+    instance,
+    instance.vNode.children as Extract<VNodeChild, VNode | VNode[] | RawSlots>
+  );
 
   // 设置有状态组件
   setupStatefulComponent(instance);

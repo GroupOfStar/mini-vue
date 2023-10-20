@@ -17,7 +17,7 @@ export interface ComponentOptions {
 export function createApp(rootComponent: ComponentOptions) {
   return {
     mount(rootContainer: Element) {
-      const vNode = createVNode(rootComponent, undefined, undefined);
+      const vNode = createVNode(rootComponent, {}, undefined);
 
       render(vNode, rootContainer);
     }

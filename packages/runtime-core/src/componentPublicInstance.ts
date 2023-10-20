@@ -2,7 +2,8 @@ import { hasOwn } from "@mini-vue/shared";
 import { ComponentInternalInstance } from "./component";
 
 const publicPropertiesMap = {
-  $el: (i: ComponentInternalInstance) => i.vNode.el
+  $el: (i: ComponentInternalInstance) => i.vNode.el,
+  $slots: (i: ComponentInternalInstance) => i.slots
 };
 
 interface ComponentRenderContext {
