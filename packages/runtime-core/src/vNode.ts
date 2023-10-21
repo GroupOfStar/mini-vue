@@ -2,7 +2,7 @@ import { ShapeFlags } from "@mini-vue/shared";
 import { ComponentOptions } from "./createApp";
 import { Data } from "./component";
 
-export type VNodeTypes = ComponentOptions | string;
+export type VNodeTypes = string | Symbol | ComponentOptions;
 
 export type RawSlots = {
   [name: string]: VNode | ((props?: Data) => VNode);
@@ -21,7 +21,7 @@ export interface VNode {
   props: Data;
   children: VNodeChild;
   shapeFlags: ShapeFlags;
-  el?: HTMLElement;
+  el?: HTMLElement | Text;
   key?: string;
 }
 
@@ -30,6 +30,10 @@ export type CreateVNode = (
   props: Data,
   children: VNodeChild
 ) => VNode;
+
+export const Fragment = Symbol("Fragment");
+
+export const Text = Symbol("Text");
 
 function getShapeFlags(type: VNodeTypes) {
   return typeof type === "string"
@@ -58,4 +62,8 @@ export const createVNode: CreateVNode = (type, props = {}, children) => {
     }
   }
   return vNode;
+};
+
+export const createTextVNode = (text: string) => {
+  return createVNode(Text, {}, text);
 };

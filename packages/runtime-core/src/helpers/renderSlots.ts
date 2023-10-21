@@ -1,5 +1,5 @@
 import { isObject } from "@mini-vue/shared";
-import { RawSlots, VNode, createVNode } from "../vNode";
+import { Fragment, RawSlots, VNode, createVNode } from "../vNode";
 import { Data } from "../component";
 
 export const renderSlots = (
@@ -10,7 +10,7 @@ export const renderSlots = (
   if (isObject(slots) && name) {
     const slot = (slots as RawSlots)[name];
     return createVNode(
-      "div",
+      Fragment,
       {},
       typeof slot === "function" ? slot(props) : slot
     );

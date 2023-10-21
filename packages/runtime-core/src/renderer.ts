@@ -1,5 +1,5 @@
 import { ShapeFlags } from "@mini-vue/shared";
-import { VNode } from "./vNode";
+import { Fragment, Text, VNode } from "./vNode";
 import { ComponentOptions } from "./createApp";
 import {
   ComponentInternalInstance,
@@ -14,10 +14,37 @@ export const render = (vNode: VNode, container: Element) => {
 /** 补丁 */
 function patch(vNode: VNode, container: Element) {
   const { type, shapeFlags } = vNode;
-  if (shapeFlags & ShapeFlags.ELEMENT) {
-    processElement(vNode, container);
-  } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vNode, container);
+  switch (type) {
+    case Fragment:
+      processFragment(vNode, container);
+      break;
+    case Text:
+      processText(vNode, container);
+      break;
+
+    default:
+      if (shapeFlags & ShapeFlags.ELEMENT) {
+        processElement(vNode, container);
+      } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vNode, container);
+      }
+      break;
+  }
+}
+
+function processFragment(vNode: VNode, container: Element) {
+  mountChildren(vNode, container);
+}
+
+function processText(vNode: VNode, container: Element) {
+  const { children } = vNode;
+  const el = (vNode.el = document.createTextNode(children as string));
+  container.appendChild(el);
+}
+
+function mountChildren(vNode: VNode, container: Element) {
+  for (const child of vNode.children as VNode[]) {
+    patch(child, container);
   }
 }
 
@@ -28,9 +55,7 @@ function processElement(vNode: VNode, container: Element) {
   if (shapeFlags & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children as string;
   } else if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
-    for (const child of children as VNode[]) {
-      patch(child, el);
-    }
+    mountChildren(vNode, container);
   }
   for (const [key, value] of Object.entries(props)) {
     const isOn = (key: string) => /^on[A-Z]/.test(key);
