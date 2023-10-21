@@ -58,12 +58,23 @@ function setupStatefulComponent(instance: ComponentInternalInstance) {
 
   const { setup } = component;
   if (setup) {
-    console.log("instance.props :>> ", instance.props);
+    setCurrentInstance(instance);
     const setupResult = setup(shallowReadonly(instance.props), {
       emit: instance.emit
     });
+    setCurrentInstance(null);
     if (typeof setupResult !== "function") {
       instance.setupState = setupResult || {};
     }
   }
+}
+
+let currentInstance: ComponentInternalInstance | null = null;
+
+export function getCurrentInstance() {
+  return currentInstance;
+}
+
+function setCurrentInstance(instance: ComponentInternalInstance | null) {
+  currentInstance = instance;
 }
