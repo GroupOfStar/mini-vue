@@ -16,9 +16,17 @@ export interface ComponentInternalInstance {
   proxy: any;
   emit: (event: string) => void;
   slots: { [key: string]: VNode[] | ((props: Data) => VNode[]) };
+  providers: {
+    [key: string]: any;
+  };
+  parent?: ComponentInternalInstance;
 }
 
-export function createComponentInstance(vNode: VNode) {
+export function createComponentInstance(
+  vNode: VNode,
+  parent?: ComponentInternalInstance
+) {
+  console.log("parent :>> ", parent);
   const component: ComponentInternalInstance = {
     vNode,
     type: vNode.type,
@@ -26,7 +34,9 @@ export function createComponentInstance(vNode: VNode) {
     setupState: {},
     proxy: null,
     emit: () => {},
-    slots: {}
+    slots: {},
+    providers: parent ? parent.providers : {},
+    parent
   };
 
   component.emit = emit.bind(null, component);

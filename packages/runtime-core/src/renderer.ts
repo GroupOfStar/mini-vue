@@ -8,15 +8,19 @@ import {
 } from "./component";
 
 export const render = (vNode: VNode, container: Element) => {
-  patch(vNode, container);
+  patch(vNode, container, undefined);
 };
 
 /** 补丁 */
-function patch(vNode: VNode, container: Element) {
+function patch(
+  vNode: VNode,
+  container: Element,
+  parentComponent?: ComponentInternalInstance
+) {
   const { type, shapeFlags } = vNode;
   switch (type) {
     case Fragment:
-      processFragment(vNode, container);
+      processFragment(vNode, container, parentComponent);
       break;
     case Text:
       processText(vNode, container);
@@ -24,16 +28,20 @@ function patch(vNode: VNode, container: Element) {
 
     default:
       if (shapeFlags & ShapeFlags.ELEMENT) {
-        processElement(vNode, container);
+        processElement(vNode, container, parentComponent);
       } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
-        processComponent(vNode, container);
+        processComponent(vNode, container, parentComponent);
       }
       break;
   }
 }
 
-function processFragment(vNode: VNode, container: Element) {
-  mountChildren(vNode, container);
+function processFragment(
+  vNode: VNode,
+  container: Element,
+  parentComponent?: ComponentInternalInstance
+) {
+  mountChildren(vNode, container, parentComponent);
 }
 
 function processText(vNode: VNode, container: Element) {
@@ -42,20 +50,28 @@ function processText(vNode: VNode, container: Element) {
   container.appendChild(el);
 }
 
-function mountChildren(vNode: VNode, container: Element) {
+function mountChildren(
+  vNode: VNode,
+  container: Element,
+  parentComponent?: ComponentInternalInstance
+) {
   for (const child of vNode.children as VNode[]) {
-    patch(child, container);
+    patch(child, container, parentComponent);
   }
 }
 
 // 操作element节点
-function processElement(vNode: VNode, container: Element) {
+function processElement(
+  vNode: VNode,
+  container: Element,
+  parentComponent?: ComponentInternalInstance
+) {
   const { type, props, children, shapeFlags } = vNode;
   const el = (vNode.el = document.createElement(type as string));
   if (shapeFlags & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children as string;
   } else if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
-    mountChildren(vNode, container);
+    mountChildren(vNode, container, parentComponent);
   }
   for (const [key, value] of Object.entries(props)) {
     const isOn = (key: string) => /^on[A-Z]/.test(key);
@@ -69,15 +85,23 @@ function processElement(vNode: VNode, container: Element) {
 }
 
 // 操作component组件
-function processComponent(vNode: VNode, container: Element) {
+function processComponent(
+  vNode: VNode,
+  container: Element,
+  parentComponent?: ComponentInternalInstance
+) {
   // init
-  mountComponent(vNode, container);
+  mountComponent(vNode, container, parentComponent);
   // update
 }
 
 // mount component
-function mountComponent(initialVNode: VNode, container: Element) {
-  const instance = createComponentInstance(initialVNode);
+function mountComponent(
+  initialVNode: VNode,
+  container: Element,
+  parentComponent?: ComponentInternalInstance
+) {
+  const instance = createComponentInstance(initialVNode, parentComponent);
   setupComponent(instance);
   setupRenderEffect(instance, initialVNode, container);
 }
@@ -90,6 +114,6 @@ function setupRenderEffect(
 ) {
   const { type, proxy } = instance;
   const subTree = (type as ComponentOptions).render.call(proxy);
-  patch(subTree, container);
+  patch(subTree, container, instance);
   initialVNode.el = subTree.el;
 }
