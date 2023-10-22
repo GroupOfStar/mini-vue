@@ -1,5 +1,5 @@
 import { EMPTY_OBJ, ShapeFlags } from '@mini-vue/shared'
-import { Fragment, Text, VNode } from './vNode'
+import { Fragment, Text, VNode, VNodeChild } from './vNode'
 import { ComponentOptions, RootRenderFunction, createAppApi } from './createApp'
 import {
   ComponentInternalInstance,
@@ -18,13 +18,17 @@ export interface RendererOptions {
     nextValue?: string | EventListener
   ): void
   insert(el: HTMLElement, parent: Element): void
+  remove(el: HTMLElement | Text): void
+  setElementText(el: HTMLElement | Text, text: string): void
 }
 
 export function createRenderer(options: RendererOptions) {
   const {
     createElement: hostCreateElement,
     patchProp: hostPatchProp,
-    insert: hostInsert
+    insert: hostInsert,
+    remove: hostRemove,
+    setElementText: hostSetElementText
   } = options
 
   const render: RootRenderFunction = function (vNode, container) {
@@ -92,7 +96,7 @@ export function createRenderer(options: RendererOptions) {
     if (!n1) {
       mountElement(n2, container, parentComponent)
     } else {
-      patchElement(n1, n2, container)
+      patchElement(n1, n2, container, parentComponent)
     }
   }
 
@@ -129,12 +133,65 @@ export function createRenderer(options: RendererOptions) {
     hostInsert(el, container)
   }
 
-  function patchElement(n1: VNode | undefined, n2: VNode, container: Element) {
+  function patchElement(
+    n1: VNode,
+    n2: VNode,
+    container: Element,
+    parentComponent?: ComponentInternalInstance
+  ) {
     const oldProps = n1?.props || EMPTY_OBJ
     const newProps = n2?.props || EMPTY_OBJ
 
+    console.log('patchElement')
+
     const el = (n2.el = n1?.el)
+    patchChildren(n1, n2, el, parentComponent)
     patchProps(el as HTMLElement, oldProps, newProps)
+  }
+
+  function patchChildren(
+    n1: VNode,
+    n2: VNode,
+    container?: HTMLElement | Text,
+    parentComponent?: ComponentInternalInstance
+  ) {
+    const { shapeFlags: prevShapeFlags, children: prevChildren } = n1
+    const { shapeFlags: nextShapFlags, children: nextChildren } = n2
+
+    // 新的是 Text
+    if (nextShapFlags & ShapeFlags.TEXT_CHILDREN) {
+      // 老的是 Array
+      if (prevShapeFlags && ShapeFlags.ARRAY_CHILDREN) {
+        // 1. 把老的 children 清空
+        unmountChildren(prevChildren as VNode[])
+      }
+      // 老的是 Array 或者Text
+      if (prevChildren !== nextChildren) {
+        // 2. 设置 text
+        container && hostSetElementText(container, nextChildren as string)
+      }
+    } else {
+      // 新的是 Array
+      // 老的是 text
+      if (prevShapeFlags && ShapeFlags.TEXT_CHILDREN) {
+        // 1. 把老的 text 清空
+        container && hostSetElementText(container, '')
+        // 2. 设置新的 Array
+        container &&
+          mountChildren(n2, container as HTMLElement, parentComponent)
+      }
+    }
+  }
+
+  function unmountChildren(children: VNode[]) {
+    for (let i = 0; i < children.length; i++) {
+      const el = children[i].el
+      if (el) {
+        // remove
+        hostRemove(el)
+        // insert
+      }
+    }
   }
 
   function patchProps(
