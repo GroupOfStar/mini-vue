@@ -66,11 +66,11 @@ export function normalizeChildren(vNode: any, children: VNodeChild) {
     // 暂时主要是为了标识出 slots_children 这个类型来
     // 暂时我们只有 element 类型和 component 类型的组件
     // 所以我们这里除了 element ，那么只要是 component 的话，那么children 肯定就是 slots 了
-    if (vNode.shapeFlag & ShapeFlags.ELEMENT) {
+    if (vNode.shapeFlags & ShapeFlags.ELEMENT) {
       // 如果是 element 类型的话，那么 children 肯定不是 slots
     } else {
       // 这里就必然是 component 了,
-      vNode.shapeFlag |= ShapeFlags.SLOTS_CHILDREN;
+      vNode.shapeFlags |= ShapeFlags.SLOTS_CHILDREN;
     }
   }
 }

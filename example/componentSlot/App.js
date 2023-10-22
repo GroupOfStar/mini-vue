@@ -11,6 +11,8 @@ export const App = {
             footer: h('p', {}, 'footer')
         })
 
+        console.log('foo :>> ', foo);
+
         return h('div', {}, [app, foo])
     },
     setup() {

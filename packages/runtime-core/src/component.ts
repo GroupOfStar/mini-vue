@@ -28,7 +28,6 @@ export function createComponentInstance(
   vNode: VNode,
   parent?: ComponentInternalInstance
 ) {
-  console.log("parent :>> ", parent);
   const component: ComponentInternalInstance = {
     vNode,
     type: vNode.type,

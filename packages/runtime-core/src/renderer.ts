@@ -80,9 +80,9 @@ export function createRenderer(options: RendererOptions) {
     container: Element,
     parentComponent?: ComponentInternalInstance
   ) {
-    for (const child of vNode.children as VNode[]) {
+    (vNode.children as VNode[]).forEach(child => {
       patch(undefined, child, container, parentComponent);
-    }
+    });
   }
 
   // 操作element节点
@@ -108,7 +108,6 @@ export function createRenderer(options: RendererOptions) {
     // document.createElement
     // canvans: new Element()
     const el = (vNode.el = hostCreateElement(type as string));
-
     if (shapeFlags & ShapeFlags.TEXT_CHILDREN) {
       el.textContent = children as string;
     } else if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
