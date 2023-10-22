@@ -1,5 +1,5 @@
-import { ComponentInternalInstance, Data } from "./component";
+import { ComponentInternalInstance, Data } from './component'
 
 export const initProps = (instance: ComponentInternalInstance, props: Data) => {
-  instance.props = props;
-};
+  instance.props = props
+}

@@ -12,7 +12,7 @@
       "runtimeExecutable": "npm",
       "program": "${workspaceFolder}\\packages\\reactivity\\__tests__\\effect.spec.ts",
       "outFiles": ["${workspaceFolder}/**/*.js"],
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

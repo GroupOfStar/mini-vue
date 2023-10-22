@@ -1,46 +1,46 @@
-import { computed } from "../src/computed";
-import { reactive } from "../src/reactive";
+import { computed } from '../src/computed'
+import { reactive } from '../src/reactive'
 
-describe.only("computed", () => {
-  it("computed should work", () => {
+describe.only('computed', () => {
+  it('computed should work', () => {
     const user = {
       age: 10
-    };
+    }
     const age = computed(() => {
-      return user.age;
-    });
-    expect(age.value).toBe(10);
-  });
+      return user.age
+    })
+    expect(age.value).toBe(10)
+  })
 
-  it("should compute lazily", () => {
-    const value = reactive({ foo: 1 });
+  it('should compute lazily', () => {
+    const value = reactive({ foo: 1 })
     const getter = vi.fn(() => {
-      return value.foo;
-    });
-    const cValue = computed(getter);
+      return value.foo
+    })
+    const cValue = computed(getter)
 
     // lazy
-    expect(getter).not.toHaveBeenCalled();
+    expect(getter).not.toHaveBeenCalled()
 
-    expect(cValue.value).toBe(1);
-    expect(getter).toHaveBeenCalledTimes(1);
+    expect(cValue.value).toBe(1)
+    expect(getter).toHaveBeenCalledTimes(1)
 
     // should not compute again
-    cValue.value;
-    expect(getter).toHaveBeenCalledTimes(1);
+    cValue.value
+    expect(getter).toHaveBeenCalledTimes(1)
 
     // should not compute until needed
-    value.foo = 2;
-    expect(getter).toHaveBeenCalledTimes(1);
+    value.foo = 2
+    expect(getter).toHaveBeenCalledTimes(1)
 
     // now it should compute
-    expect(cValue.value).toBe(2);
-    expect(getter).toHaveBeenCalledTimes(2);
-    console.log("cValue.value :", cValue.value);
+    expect(cValue.value).toBe(2)
+    expect(getter).toHaveBeenCalledTimes(2)
+    console.log('cValue.value :', cValue.value)
     // should not compute again
-    cValue.value;
-    expect(getter).toHaveBeenCalledTimes(2);
-  });
+    cValue.value
+    expect(getter).toHaveBeenCalledTimes(2)
+  })
 
   //   it("computed should work with setter", () => {
   //     const user = {
@@ -58,4 +58,4 @@ describe.only("computed", () => {
   //     age.value = 20;
   //     expect(age.value).toBe(20);
   //   })
-});
+})
