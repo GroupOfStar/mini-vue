@@ -1,4 +1,4 @@
-import { shallowReadonly } from "@mini-vue/reactivity";
+import { proxyRefs, shallowReadonly } from "@mini-vue/reactivity";
 import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { ComponentOptions } from "./createApp";
@@ -20,6 +20,8 @@ export interface ComponentInternalInstance {
     [key: string]: any;
   };
   parent?: ComponentInternalInstance;
+  isMounted: boolean;
+  subTree?: VNode;
 }
 
 export function createComponentInstance(
@@ -36,7 +38,8 @@ export function createComponentInstance(
     emit: () => {},
     slots: {},
     providers: parent ? parent.providers : {},
-    parent
+    parent,
+    isMounted: false
   };
 
   component.emit = emit.bind(null, component);
@@ -73,8 +76,8 @@ function setupStatefulComponent(instance: ComponentInternalInstance) {
       emit: instance.emit
     });
     setCurrentInstance(null);
-    if (typeof setupResult !== "function") {
-      instance.setupState = setupResult || {};
+    if (typeof setupResult === "object") {
+      instance.setupState = proxyRefs(setupResult || {});
     }
   }
 }

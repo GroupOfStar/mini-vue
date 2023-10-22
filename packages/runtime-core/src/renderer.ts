@@ -10,6 +10,7 @@ import {
   createComponentInstance,
   setupComponent
 } from "./component";
+import { effect } from "@mini-vue/reactivity";
 
 export interface RendererOptions {
   createElement(type: string): HTMLElement;
@@ -25,45 +26,47 @@ export function createRenderer(options: RendererOptions) {
   } = options;
 
   const render: RootRenderFunction = function (vNode, container) {
-    patch(vNode, container, undefined);
+    patch(undefined, vNode, container, undefined);
   };
 
   /** 补丁 */
   function patch(
-    vNode: VNode,
+    n1: VNode | undefined,
+    n2: VNode,
     container: Element,
     parentComponent?: ComponentInternalInstance
   ) {
-    const { type, shapeFlags } = vNode;
+    const { type, shapeFlags } = n2;
     switch (type) {
       case Fragment:
-        processFragment(vNode, container, parentComponent);
+        processFragment(n1, n2, container, parentComponent);
         break;
       case Text:
-        processText(vNode, container);
+        processText(n1, n2, container);
         break;
 
       default:
         if (shapeFlags & ShapeFlags.ELEMENT) {
-          processElement(vNode, container, parentComponent);
+          processElement(n1, n2, container, parentComponent);
         } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(vNode, container, parentComponent);
+          processComponent(n1, n2, container, parentComponent);
         }
         break;
     }
   }
 
   function processFragment(
-    vNode: VNode,
+    n1: VNode | undefined,
+    n2: VNode,
     container: Element,
     parentComponent?: ComponentInternalInstance
   ) {
-    mountChildren(vNode, container, parentComponent);
+    mountChildren(n2, container, parentComponent);
   }
 
-  function processText(vNode: VNode, container: Element) {
-    const { children } = vNode;
-    const el = (vNode.el = document.createTextNode(children as string));
+  function processText(n1: VNode | undefined, n2: VNode, container: Element) {
+    const { children } = n2;
+    const el = (n2.el = document.createTextNode(children as string));
     container.appendChild(el);
   }
 
@@ -73,25 +76,38 @@ export function createRenderer(options: RendererOptions) {
     parentComponent?: ComponentInternalInstance
   ) {
     for (const child of vNode.children as VNode[]) {
-      patch(child, container, parentComponent);
+      patch(undefined, child, container, parentComponent);
     }
   }
 
   // 操作element节点
   function processElement(
-    vNode: VNode,
+    n1: VNode | undefined,
+    n2: VNode,
     container: Element,
     parentComponent?: ComponentInternalInstance
   ) {
-    const { type, props, children, shapeFlags } = vNode;
+    if (!n1) {
+      mountElement(n2, container, parentComponent);
+    } else {
+      patchElement(n1, n2, container);
+    }
+  }
+
+  function mountElement(
+    n2: VNode,
+    container: Element,
+    parentComponent?: ComponentInternalInstance
+  ) {
+    const { type, props, children, shapeFlags } = n2;
     // document.createElement
     // canvans: new Element()
-    const el = (vNode.el = hostCreateElement(type as string));
+    const el = (n2.el = hostCreateElement(type as string));
 
     if (shapeFlags & ShapeFlags.TEXT_CHILDREN) {
       el.textContent = children as string;
     } else if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
-      mountChildren(vNode, container, parentComponent);
+      mountChildren(n2, container, parentComponent);
     }
 
     // props
@@ -112,14 +128,20 @@ export function createRenderer(options: RendererOptions) {
     hostInsert(el, container);
   }
 
+  function patchElement(n1: VNode | undefined, n2: VNode, container: Element) {
+    console.log("n1 :>> ", n1);
+    console.log("n2 :>> ", n2);
+  }
+
   // 操作component组件
   function processComponent(
-    vNode: VNode,
+    n1: VNode | undefined,
+    n2: VNode,
     container: Element,
     parentComponent?: ComponentInternalInstance
   ) {
     // init
-    mountComponent(vNode, container, parentComponent);
+    mountComponent(n2, container, parentComponent);
     // update
   }
 
@@ -140,10 +162,23 @@ export function createRenderer(options: RendererOptions) {
     initialVNode: VNode,
     container: Element
   ) {
-    const { type, proxy } = instance;
-    const subTree = (type as ComponentOptions).render.call(proxy);
-    patch(subTree, container, instance);
-    initialVNode.el = subTree.el;
+    effect(() => {
+      const { type, proxy, isMounted } = instance;
+      const subTree = (type as ComponentOptions).render.call(proxy);
+      if (!isMounted) {
+        // init
+        instance.subTree = subTree;
+        patch(undefined, subTree, container, instance);
+        initialVNode.el = subTree.el;
+        instance.isMounted = true;
+      } else {
+        // update
+        const prevSubTree = instance.subTree;
+        instance.subTree = subTree;
+
+        patch(prevSubTree, subTree, container, instance);
+      }
+    });
   }
 
   return {
