@@ -2,6 +2,8 @@ export const isObject = (val: any) => {
   return val !== null && typeof val === "object";
 };
 
+export const EMPTY_OBJ: { readonly [key: string]: any } = {};
+
 export const extend = Object.assign;
 
 export const hasChanged = (newValue: any, oldValue: any) => {

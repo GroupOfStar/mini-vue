@@ -1,4 +1,4 @@
-import { ShapeFlags } from "@mini-vue/shared";
+import { EMPTY_OBJ, ShapeFlags } from "@mini-vue/shared";
 import { Fragment, Text, VNode } from "./vNode";
 import {
   ComponentOptions,
@@ -7,6 +7,7 @@ import {
 } from "./createApp";
 import {
   ComponentInternalInstance,
+  Data,
   createComponentInstance,
   setupComponent
 } from "./component";
@@ -14,7 +15,12 @@ import { effect } from "@mini-vue/reactivity";
 
 export interface RendererOptions {
   createElement(type: string): HTMLElement;
-  patchProp(el: HTMLElement, key: string, value: string | EventListener): void;
+  patchProp(
+    el: HTMLElement,
+    key: string,
+    prevValue?: string | EventListener,
+    nextValue?: string | EventListener
+  ): void;
   insert(el: HTMLElement, parent: Element): void;
 }
 
@@ -44,7 +50,6 @@ export function createRenderer(options: RendererOptions) {
       case Text:
         processText(n1, n2, container);
         break;
-
       default:
         if (shapeFlags & ShapeFlags.ELEMENT) {
           processElement(n1, n2, container, parentComponent);
@@ -95,19 +100,19 @@ export function createRenderer(options: RendererOptions) {
   }
 
   function mountElement(
-    n2: VNode,
+    vNode: VNode,
     container: Element,
     parentComponent?: ComponentInternalInstance
   ) {
-    const { type, props, children, shapeFlags } = n2;
+    const { type, props, children, shapeFlags } = vNode;
     // document.createElement
     // canvans: new Element()
-    const el = (n2.el = hostCreateElement(type as string));
+    const el = (vNode.el = hostCreateElement(type as string));
 
     if (shapeFlags & ShapeFlags.TEXT_CHILDREN) {
       el.textContent = children as string;
     } else if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
-      mountChildren(n2, container, parentComponent);
+      mountChildren(vNode, container, parentComponent);
     }
 
     // props
@@ -120,7 +125,7 @@ export function createRenderer(options: RendererOptions) {
       // } else {
       //   el.setAttribute(key, value as string);
       // }
-      hostPatchProp(el, key, val);
+      hostPatchProp(el, key, undefined, val);
     }
 
     // container.appendChild(el);
@@ -131,6 +136,28 @@ export function createRenderer(options: RendererOptions) {
   function patchElement(n1: VNode | undefined, n2: VNode, container: Element) {
     console.log("n1 :>> ", n1);
     console.log("n2 :>> ", n2);
+
+    const oldProps = n1?.props || EMPTY_OBJ;
+    const newProps = n2?.props || EMPTY_OBJ;
+
+    const el = (n2.el = n1?.el);
+    patchProps(el as HTMLElement, oldProps, newProps);
+  }
+
+  function patchProps(
+    el: HTMLElement,
+    oldProps: Data<any>,
+    newProps: Data<any>
+  ) {
+    if (oldProps !== newProps) {
+      for (const key in newProps) {
+        const prevValue = oldProps[key];
+        const nextValue = newProps[key];
+        if (prevValue !== nextValue) {
+          hostPatchProp(el, key, prevValue, nextValue);
+        }
+      }
+    }
   }
 
   // 操作component组件

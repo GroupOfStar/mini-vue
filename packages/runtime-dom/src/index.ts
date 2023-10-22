@@ -5,12 +5,17 @@ const createElement: RendererOptions["createElement"] = function (type) {
   return document.createElement(type);
 };
 
-const patchProp: RendererOptions["patchProp"] = function (el, key, value) {
+const patchProp: RendererOptions["patchProp"] = function (
+  el,
+  key,
+  prevValue,
+  nextValue
+) {
   const isOn = (key: string) => /^on[A-Z]/.test(key);
   if (isOn(key)) {
-    el.addEventListener(key.slice(2).toLowerCase(), value as EventListener);
+    el.addEventListener(key.slice(2).toLowerCase(), nextValue as EventListener);
   } else {
-    el.setAttribute(key, value as string);
+    el.setAttribute(key, nextValue as string);
   }
 };
 

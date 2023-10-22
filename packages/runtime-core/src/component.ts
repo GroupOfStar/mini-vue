@@ -6,7 +6,7 @@ import { RawSlots, VNode, VNodeChild, VNodeTypes } from "./vNode";
 import { emit } from "./componentEmit";
 import { initSlots } from "./componentSlots";
 
-export type Data = Record<string, unknown>;
+export type Data<T = unknown> = Record<string, T>;
 
 export interface ComponentInternalInstance {
   vNode: VNode;

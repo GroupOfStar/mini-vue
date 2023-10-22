@@ -8,5 +8,5 @@ export const enum ShapeFlags {
   /** 数组节点 */
   ARRAY_CHILDREN = 1 << 3, // 1000
   /** 插槽节点 */
-  SLOT_CHILDREN = 1 << 4 // 10000
+  SLOTS_CHILDREN = 1 << 4 // 10000
 }

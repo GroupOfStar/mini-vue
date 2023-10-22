@@ -7,7 +7,7 @@ export const initSlots = (
   children?: VNode | VNode[] | RawSlots
 ) => {
   const { vNode, slots } = instance;
-  if (vNode.shapeFlags & ShapeFlags.SLOT_CHILDREN) {
+  if (vNode.shapeFlags & ShapeFlags.SLOTS_CHILDREN) {
     normalizeObjectSlots(children, slots);
   }
 };
