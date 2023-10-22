@@ -15,7 +15,11 @@ const patchProp: RendererOptions['patchProp'] = function (
   if (isOn(key)) {
     el.addEventListener(key.slice(2).toLowerCase(), nextValue as EventListener)
   } else {
-    el.setAttribute(key, nextValue as string)
+    if (nextValue === undefined || nextValue === null) {
+      el.removeAttribute(key)
+    } else {
+      el.setAttribute(key, nextValue as string)
+    }
   }
 }
 

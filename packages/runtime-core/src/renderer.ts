@@ -150,6 +150,14 @@ export function createRenderer(options: RendererOptions) {
           hostPatchProp(el, key, prevValue, nextValue)
         }
       }
+
+      if (oldProps !== EMPTY_OBJ) {
+        for (const key in oldProps) {
+          if (!Object.prototype.hasOwnProperty.call(newProps, key)) {
+            hostPatchProp(el, key, oldProps[key], undefined)
+          }
+        }
+      }
     }
   }
 
