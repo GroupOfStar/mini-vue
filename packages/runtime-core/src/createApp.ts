@@ -1,5 +1,4 @@
 import { VNode, createVNode } from "./vNode";
-import { render } from "./renderer";
 import { Data } from "./component";
 
 interface SetupContext {
@@ -9,17 +8,21 @@ interface SetupContext {
   expose?: (exposed?: Record<string, any>) => void;
 }
 
+export type RootRenderFunction = (vNode: VNode, container: Element) => void;
+
 export interface ComponentOptions {
   render: () => VNode;
   setup?: (props?: Data, cxt?: SetupContext) => Data;
 }
 
-export function createApp(rootComponent: ComponentOptions) {
-  return {
-    mount(rootContainer: Element) {
-      const vNode = createVNode(rootComponent, {}, undefined);
+export function createAppApi(render: RootRenderFunction) {
+  return function createApp(rootComponent: ComponentOptions) {
+    return {
+      mount(rootContainer: Element) {
+        const vNode = createVNode(rootComponent, {}, undefined);
 
-      render(vNode, rootContainer);
-    }
+        render(vNode, rootContainer);
+      }
+    };
   };
 }
