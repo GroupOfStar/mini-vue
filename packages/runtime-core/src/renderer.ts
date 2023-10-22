@@ -76,7 +76,8 @@ export function createRenderer(options: RendererOptions) {
     container: Element,
     parentComponent?: ComponentInternalInstance
   ) {
-    ;(vNode.children as VNode[]).forEach(child => {
+    const children = vNode.children as VNode[]
+    children.forEach(child => {
       patch(undefined, child, container, parentComponent)
     })
   }
@@ -107,7 +108,7 @@ export function createRenderer(options: RendererOptions) {
     if (shapeFlags & ShapeFlags.TEXT_CHILDREN) {
       el.textContent = children as string
     } else if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
-      mountChildren(vNode, container, parentComponent)
+      mountChildren(vNode, el, parentComponent)
     }
 
     // props
@@ -129,9 +130,6 @@ export function createRenderer(options: RendererOptions) {
   }
 
   function patchElement(n1: VNode | undefined, n2: VNode, container: Element) {
-    console.log('n1 :>> ', n1)
-    console.log('n2 :>> ', n2)
-
     const oldProps = n1?.props || EMPTY_OBJ
     const newProps = n2?.props || EMPTY_OBJ
 

@@ -20,7 +20,7 @@ const patchProp: RendererOptions['patchProp'] = function (
 }
 
 const insert: RendererOptions['insert'] = function (el, parent) {
-  parent.append(el)
+  parent.appendChild(el)
 }
 
 const renderer = createRenderer({
