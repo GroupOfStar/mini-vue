@@ -11,7 +11,8 @@ interface SetupContext {
 export type RootRenderFunction = (vNode: VNode, container: Element) => void
 
 export interface ComponentOptions {
-  render: () => VNode
+  name?: string
+  render?: () => VNode
   setup?: (props?: Data, cxt?: SetupContext) => Data
 }
 

@@ -23,8 +23,8 @@ const patchProp: RendererOptions['patchProp'] = function (
   }
 }
 
-const insert: RendererOptions['insert'] = function (el, parent) {
-  parent.appendChild(el)
+const insert: RendererOptions['insert'] = function (el, parent, anchor) {
+  parent.insertBefore(el, anchor as any)
 }
 
 const remove: RendererOptions['remove'] = function (el) {

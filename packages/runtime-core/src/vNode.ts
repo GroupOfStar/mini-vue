@@ -1,4 +1,4 @@
-import { ShapeFlags } from '@mini-vue/shared'
+import { ShapeFlags, extend } from '@mini-vue/shared'
 import { ComponentOptions } from './createApp'
 import { Data } from './component'
 
@@ -27,7 +27,7 @@ export interface VNode {
 
 export type CreateVNode = (
   type: VNodeTypes,
-  props: Data,
+  props: Data<string>,
   children: VNodeChild
 ) => VNode
 
@@ -44,6 +44,7 @@ function getShapeFlags(type: VNodeTypes) {
 export const createVNode: CreateVNode = (type, props = {}, children) => {
   const vNode = {
     type,
+    key: props.key,
     shapeFlags: getShapeFlags(type),
     props,
     children

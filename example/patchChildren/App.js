@@ -15,9 +15,9 @@ export default {
       // 老的是 text 新的text
       // h(TextToText)
       // 老的是 text 新的也是 array
-      h(TextToArray)
+      // h(TextToArray)
       // 老的是 array 新的也是 array
-      // h(ArrayToArray)
+      h(ArrayToArray)
     ])
   }
 }
